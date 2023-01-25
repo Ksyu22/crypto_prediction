@@ -27,3 +27,17 @@ six>=1.14
 joblib
 memoized-property
 termcolor
+
+
+# api
+requests
+
+#crypto
+Historic-Crypto
+
+#DS
+pandas
+numpy
+matplotlib
+seaborn
+tensorflow
