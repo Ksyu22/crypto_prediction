@@ -33,9 +33,11 @@ termcolor
 requests
 
 #crypto
-Historic-Crypto
+#Historic-Crypto
+yfinance
 
 #DS
+statsmodels
 pandas
 numpy
 matplotlib
