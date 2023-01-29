@@ -5,12 +5,14 @@ from datetime import date, datetime
 
 import yfinance as yf
 
-def fetch_fng_index():
+def fetch_fng_index(limit=100000):
     '''
-    This function fetches fear & greed index from official api
+    This function fetches fear & greed index from official api.
+    By default 100000 entries are fetched.
+    Start and end dates are kept for following use in fetching excahnge rate.
     '''
     url = 'https://api.alternative.me/fng/'
-    params = {'limit': 100000,
+    params = {'limit': limit,
             'date_format': 'world'
             }
     response = requests.get(url, params).json()
@@ -21,20 +23,29 @@ def fetch_fng_index():
     fng_df.set_index('timestamp', inplace=True)
     fng_df.rename(columns={'value': 'fng_idx', 'value_classification': 'fng_class'}, inplace=True)
 
+    fng_df.fng_idx = fng_df.fng_idx.astype('float')
+
+    return fng_df
+
+def fetch_start_end_dates(limit):
+    '''
+     Fetches the start and end date of fear and greed index database
+    '''
+    fng_df = fetch_fng_index(limit)
     #getting the first & the last timestamp to reuse it for api data fetch
     fng_first_timestamp = fng_df.index[-1].date().strftime('%Y-%m-%d')
     fng_last_timestamp = fng_df.index[0].date().strftime('%Y-%m-%d')
 
-    fng_df.fng_idx = fng_df.fng_idx.astype('float')
-
-    return fng_df, fng_first_timestamp, fng_last_timestamp
+    return fng_first_timestamp, fng_last_timestamp
 
 
-def fetch_rate_exchange():
+def fetch_rate_exchange(ticker: str, limit=100000) -> pd.DataFrame:
     '''
-    Fetches data from yfinance and brings it to useful format
+    Fetches data from yfinance and brings it to useful format.
     '''
-    df_rate = yf.download('BTC-USD', interval = '1d')[['Close', 'Volume']]
+    start, end = fetch_start_end_dates(limit)
+
+    df_rate = yf.download(ticker, start=start, end=end, interval = '1d')[['Close', 'Volume']]
     df_rate.reset_index(inplace=True)
     df_rate = df_rate.copy()
     df_rate = df_rate.rename(columns={'Date': 'timestamp', 'Close': 'rate', 'Volume': 'volume'})
@@ -43,11 +54,20 @@ def fetch_rate_exchange():
     df_rate.set_index(df_rate.timestamp, inplace=True)
     df_rate.drop(columns='timestamp', inplace=True)
 
-
     return df_rate
+
+def fetch_data(ticker, limit=100000):
+    '''Funcrtion returns df containing fear and greed index + change rate
+    for a specific ticker.'''
+    fng_df = fetch_fng_index(limit)
+    rate_df = fetch_rate_exchange(ticker, limit)
+
+    return fng_df.merge(rate_df, on='timestamp')
 
 
 if __name__ == '__main__':
     print('ok')
-    df = fetch_rate_exchange()
+    #fng = fetch_fng_index(15)
+    #rate = fetch_rate_exchange('BTC-USD', 15)
+    df = fetch_data('BTC-USD', 15)
     print(df)
