@@ -5,7 +5,7 @@ from datetime import date, datetime
 
 import yfinance as yf
 
-def fetch_fng_index(limit=100000):
+def fetch_fng_index(limit=100000) -> pd.DataFrame:
     '''
     This function fetches fear & greed index from official api.
     By default 100000 entries are fetched.
@@ -27,7 +27,7 @@ def fetch_fng_index(limit=100000):
 
     return fng_df
 
-def fetch_start_end_dates(limit):
+def fetch_start_end_dates(limit) -> pd.DataFrame:
     '''
      Fetches the start and end date of fear and greed index database
     '''
@@ -56,7 +56,7 @@ def fetch_rate_exchange(ticker: str, limit=100000) -> pd.DataFrame:
 
     return df_rate
 
-def fetch_data(ticker, limit=100000):
+def fetch_data(ticker: str, limit=100000) -> pd.DataFrame:
     '''Funcrtion returns df containing fear and greed index + change rate
     for a specific ticker.'''
     fng_df = fetch_fng_index(limit)
