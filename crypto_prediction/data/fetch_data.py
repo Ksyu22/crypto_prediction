@@ -46,10 +46,10 @@ def fetch_rate_exchange(ticker: str, limit=100000) -> pd.DataFrame:
     '''
     start, end = fetch_start_end_dates(limit)
 
-    df_rate = yf.download(ticker, start=start, end=end, interval = '1d')[['Close', 'Volume']]
+    df_rate = yf.download(ticker, start=start, end=end, interval = '1d')[['Close', 'Volume', 'High', 'Low']]
     df_rate.reset_index(inplace=True)
     df_rate = df_rate.copy()
-    df_rate = df_rate.rename(columns={'Date': 'timestamp', 'Close': 'rate', 'Volume': 'volume'})
+    df_rate = df_rate.rename(columns={'Date': 'timestamp', 'Close': 'rate', 'Volume': 'volume', 'High': 'high', 'Low': 'low'})
 
     df_rate.timestamp = pd.to_datetime(df_rate.timestamp).dt.tz_localize(None)
     df_rate.set_index(df_rate.timestamp, inplace=True)
